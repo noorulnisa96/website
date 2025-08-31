@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Pink Floral Dress",
+    "price": 49.99,
+    "image": "https://via.placeholder.com/200x250?text=Pink+Floral+Dress",
+    "description": "Beautiful pink floral dress for summer."
+  },
+  {
+    "id": 2,
+    "name": "Rose Gold Necklace",
+    "price": 29.99,
+    "image": "https://via.placeholder.com/200x250?text=Rose+Gold+Necklace",
+    "description": "Elegant rose gold necklace to complement any outfit."
+  }
+]

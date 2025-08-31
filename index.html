@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Girly E-Commerce</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #fff0f6;
+    color: #444;
+    margin: 0; padding: 0;
+  }
+  header {
+    background: #f8bbd0;
+    padding: 1rem;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #6a1b4d;
+  }
+  main {
+    max-width: 960px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+  .products {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .product {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 5px #d29db9;
+    width: 200px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .product img {
+    max-width: 100%;
+    border-radius: 6px;
+  }
+  .product h3 {
+    margin: 0.5rem 0 0.25rem;
+    color: #a8437a;
+  }
+  .product p {
+    font-size: 0.9rem;
+    color: #6a1b4d;
+  }
+  .product .price {
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: #ad1457;
+  }
+  button {
+    background: #f48fb1;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #c2185b;
+  }
+  #cart {
+    position: fixed;
+    right: 1rem;
+    top: 5rem;
+    background: #f48fb1;
+    color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 250px;
+    box-shadow: 0 0 10px #c2185b;
+  }
+  #cart h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
+  #cart ul {
+    list-style: none;
+    padding-left: 0;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  #cart li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  #cart button {
+    background: #c2185b;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+  #checkoutBtn {
+    margin-top: 1rem;
+    width: 100%;
+    background: #6a1b4d;
+  }
+</style>
+</head>
+<body>
+<header>Girly E-Commerce Store</header>
+<main>
+  <div class="products" id="products"></div>
+</main>
+
+<div id="cart">
+  <h2>Shopping Cart</h2>
+  <ul id="cart-items"></ul>
+  <div><strong>Total: $<span id="total">0.00</span></strong></div>
+  <button id="checkoutBtn">Checkout</button>
+</div>
+
+<script>
+// Load products from JSON
+async function loadProducts() {
+  const res = await fetch('products.json');
+  const products = await res.json();
+  const container = document.getElementById('products');
+  container.innerHTML = '';
+  products.forEach(product => {
+    const div = document.createElement('div');
+    div.className = 'product';
+    div.innerHTML = `
+      <img src="${product.image}" alt="${product.name}" />
+      <h3>${product.name}</h3>
+      <p>${product.description}</p>
+      <div class="price">$${product.price.toFixed(2)}</div>
+      <button data-id="${product.id}">Add to Cart</button>
+    `;
+    container.appendChild(div);
+  });
+
+  // Add event listeners to buttons
+  document.querySelectorAll('button[data-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      addToCart(parseInt(btn.getAttribute('data-id')));
+    });
+  });
+}
+
+// Cart management
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function saveCart() {
+  localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+function addToCart(id) {
+  const existing = cart.find(item => item.id === id);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({ id, qty: 1 });
+  }
+  saveCart();
+  renderCart();
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(item => item.id !== id);
+  saveCart();
+  renderCart();
+}
+
+async function renderCart() {
+  const res = await fetch('products.json');
+  const products = await res.json();
+
+  const cartItems = document.getElementById('cart-items');
+  cartItems.innerHTML = '';
+  let total = 0;
+
+  cart.forEach(item => {
+    const product = products.find(p => p.id === item.id);
+    if (product) {
+      const li = document.createElement('li');
+      li.textContent = `${product.name} x${item.qty} - $${(product.price * item.qty).toFixed(2)}`;
+      const rmBtn = document.createElement('button');
+      rmBtn.textContent = 'Remove';
+      rmBtn.onclick = () => removeFromCart(item.id);
+      li.appendChild(rmBtn);
+      cartItems.appendChild(li);
+      total += product.price * item.qty;
+    }
+  });
+
+  document.getElementById('total').textContent = total.toFixed(2);
+}
+
+// Checkout button (placeholder)
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  if (cart.length === 0) {
+    alert('Your cart is empty!');
+  } else {
+    alert('Checkout is not implemented. This is a demo.');
+  }
+});
+
+// Initialize
+loadProducts();
+renderCart();
+
+</script>
+</body>
+</html>
